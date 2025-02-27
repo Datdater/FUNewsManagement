@@ -1,0 +1,38 @@
+﻿@using PresentationLayer.Models.NewsArticleModel
+@using X.PagedList.Mvc.Core
+@model X.PagedList.IPagedList<NewsArticleViewModel>
+
+<div class="row gx-4 gx-lg-5 justify-content-center">
+    <div class="col-md-10 col-lg-8 col-xl-7">
+        @foreach (var item in Model)
+        {
+            <div class="post-preview">
+                <a asp-action="Get" asp-controller="NewsArticle" asp-route-id="@item.NewsArticleID">
+                    <h2 class="post-title">@item.NewsTitle</h2>
+                    <h3 class="post-subtitle">@item.Headline</h3>
+                </a>
+                <p class="post-meta">
+                    Posted by
+                    <a href="#!">@item.CreatedByID</a>
+                    on @item.CreatedDate
+                </p>
+            </div>
+            <hr class="my-4">
+        }
+
+        <!-- Pagination Controls -->
+        <nav>
+            <ul class="pagination justify-content-center">
+                @Html.PagedListPager(Model, page => Url.Action("GetAll", new { page, pageSize = 5 }),
+                         new PagedListRenderOptions
+                {
+                    LinkToPreviousPageFormat = "← Newer Posts",
+                    LinkToNextPageFormat = "Older Posts →",
+                    DisplayLinkToFirstPage = PagedListDisplayMode.Never,
+                    DisplayLinkToLastPage = PagedListDisplayMode.Never,
+                    DisplayLinkToIndividualPages = false
+                })
+            </ul>
+        </nav>
+    </div>
+</div>

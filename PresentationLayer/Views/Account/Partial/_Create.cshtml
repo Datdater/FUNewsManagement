@@ -1,0 +1,49 @@
+﻿@model PresentationLayer.Models.AccountViewModels.AccountCreateViewModel
+
+<div class="modal fade" id="createAccountModal" tabindex="-1" aria-labelledby="createAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createAccountModalLabel">Create Account</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="createAccountForm" asp-action="Create" method="post">
+                    <div class="form-group">
+                        <label asp-for="AccountName"></label>
+                        <input asp-for="AccountName" class="form-control" required />
+                        <span asp-validation-for="AccountName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="AccountEmail"></label>
+                        <input asp-for="AccountEmail" type="email" class="form-control" required />
+                        <span asp-validation-for="AccountEmail" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="AccountPassword"></label>
+                        <input asp-for="AccountPassword" type="password" class="form-control" required />
+                        <span asp-validation-for="AccountPassword" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="AccountRole"></label>
+                        <select asp-for="AccountRole" class="form-control" asp-items="ViewBag.Roles" required>
+                            <option value="">-- Select Role --</option>
+                        </select>
+                        <span asp-validation-for="AccountRole" class="text-danger"></span>
+                    </div>
+
+                    <button type="button" id="submitCreate" class="btn btn-primary">Create</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

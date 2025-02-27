@@ -1,0 +1,208 @@
+﻿@using PresentationLayer.Models.AccountViewModels
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@model List<AccountViewModel>
+
+<button type="button" class="btn btn-success" data-toggle="modal" data-target="#createAccountModal">
+    + Create Account
+</button>
+
+
+@await Html.PartialAsync("~/Views/Account/Partial/_Create.cshtml", new AccountCreateViewModel())
+
+<div class="table-responsive">
+    <table class="table table-bordered-bd-warning table-head-bg-default" id="tbl-accounts">
+        <thead>
+            <tr>
+                <th>Account ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr id="row-@item.AccountID">
+                    <td>@item.AccountID</td>
+                    <td>@item.AccountName</td>
+                    <td>@item.AccountEmail</td>
+                    <td>@item.AccountRole</td>
+                    <td>
+                        <a href="javascript:void(0);" onclick="loadUpdateForm('@item.AccountID')">
+                            Update
+                        </a>
+                        <a href="javascript:void(0);" onclick="confirmDelete('@item.AccountID', '@item.AccountName')">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div id="modalUpdate"></div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+    <script>
+
+        $(document).ready(function () {
+            $("#tbl-accounts").DataTable();
+        });
+
+        function loadUpdateForm(id) {
+            $.ajax({
+                url: '@Url.Action("Update", "Account")/' + id,
+                type: 'GET',
+                success: function (result) {
+                    $('#modalUpdate').html(result);
+                    $('#updateAccountModal').modal('show');
+                }
+            });
+        }
+
+        $(document).on("hidden.bs.modal", "#updateAccountModal", function () {
+            console.log("Modal closed, clearing content...");
+            $("#modalUpdate").html("");
+        });
+
+
+
+        function confirmDelete(id, name) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `Do you want to delete "${name}"?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    deleteAccount(id);
+                }
+            });
+        }
+
+        function deleteAccount(id) {
+            $.ajax({
+                url: `/Account/Delete/${id}`,
+                type: 'POST',
+                success: function (result) {
+                    if (result.success) {
+                        $(`#row-${id}`).fadeOut('slow', function () {
+                            $(this).remove();
+                        });
+
+                        Swal.fire({
+                            title: 'Deleted!',
+                            text: result.message,
+                            icon: 'success',
+                            timer: 2000,
+                            showConfirmButton: true,
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: result.message,
+                            icon: 'error'
+                        });
+                    }
+                },
+                error: function () {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to delete the account. Please try again.',
+                        icon: 'error'
+                    });
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            $(document).on("click", "#submitCreate", function (event) {
+                event.preventDefault();
+                $.post("@Url.Action("Create", "Account")", $("#createAccountForm").serialize(), function (response) {
+                    if (response.success) {
+                        $("#createAccountModal").modal("hide");
+                        Swal.fire({
+                            title: "Account Created!",
+                            text: "The account has been successfully created.",
+                            icon: "success",
+                            allowOutsideClick: false,
+                            showConfirmButton: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        if (response.errors) {
+                            displayValidationErrors(response.errors);
+                        } else {
+                            $(".validation-summary-errors ul").html("<li>An error occurred. Please try again.</li>");
+                        }
+                    }
+                }, "json").fail(function () {
+                    $(".validation-summary-errors ul").html("<li>A server error occurred. Please try again later.</li>");
+                });
+            });
+
+            $(document).on("click", "#submitUpdate", function (event) {
+                event.preventDefault();
+                $.post("@Url.Action("Update", "Account")", $("#updateAccountForm").serialize(), function (response) {
+                    if (response.success) {
+                        $("#updateAccountModal").modal("hide");
+                        Swal.fire({
+                            title: "Account Updated!",
+                            text: "The account has been successfully updated.",
+                            icon: "success",
+                            allowOutsideClick: false,
+                            showConfirmButton: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        if (response.errors) {
+                            displayValidationErrors(response.errors);
+                        } else {
+                            $(".validation-summary-errors ul").html("<li>An error occurred. Please try again.</li>");
+                        }
+                    }
+                }, "json").fail(function () {
+                    $(".validation-summary-errors ul").html("<li>A server error occurred. Please try again later.</li>");
+                });
+            });
+
+
+            function displayValidationErrors(errors) {
+                $(".validation-summary-errors ul").empty();
+                $(".field-validation-error").empty();
+                if (typeof errors === "string") {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Validation Error",
+                        text: errors, 
+                    });
+                    return;
+                }
+
+                $.each(errors, function (key, value) {
+                    $(`span[data-valmsg-for="${key}"]`).text(value[0]);
+                    $(".validation-summary-errors ul").append(`<li>${value[0]}</li>`);
+                });
+            }
+        });
+    </script>
+}

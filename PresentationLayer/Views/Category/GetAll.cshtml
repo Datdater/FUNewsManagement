@@ -1,0 +1,190 @@
+﻿@using PresentationLayer.Models.CategoryViewModels
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@model List<CategoryViewModel>
+
+<button type="button" class="btn btn-success" data-toggle="modal" data-target="#createCategoryModal">
+    + Create Category
+</button>
+
+
+@await Html.PartialAsync("~/Views/Category/Partial/_Create.cshtml", new CategoryCreateViewModel())
+
+<div class="table-responsive">
+    <table class="table table-bordered-bd-warning table-head-bg-default" id="tbl-categories">
+        <thead>
+            <tr>
+                <th>Category ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Parent Category</th>
+                <th>Active</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr id="row-@item.CategoryID">
+                    <td>@item.CategoryID</td>
+                    <td>@item.CategoryName</td>
+                    <td>@item.CategoryDescription</td>
+                    <td>@item.ParentCategoryName</td>
+                    <td>@(item.IsActive ? "Yes" : "No")</td>
+                    <td>
+                        <a href="javascript:void(0);" onclick="loadUpdateForm('@item.CategoryID')">
+                            Update
+                        </a>
+                        <a href="javascript:void(0);" onclick="confirmDelete('@item.CategoryID', '@item.CategoryName')">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div id="modalUpdate"></div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#tbl-categories").DataTable();
+        });
+
+
+        function loadUpdateForm(id) {
+            $.ajax({
+                url: '@Url.Action("Update", "Category")/' + id,
+                type: 'GET',
+                success: function (result) {
+                    $('#modalUpdate').html(result);
+                    $('#updateCategoryModal').modal('show');
+                }
+            });
+        }
+
+        function confirmDelete(id, name) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `Do you want to delete "${name}"?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    deleteCategory(id);
+                }
+            });
+        }
+
+        function deleteCategory(id) {
+            $.ajax({
+                url: `/Category/Delete/${id}`,
+                type: 'POST',
+                success: function (result) {
+                    if (result.success) {
+                        $(`#row-${id}`).fadeOut('slow', function () {
+                            $(this).remove();
+                        });
+
+                        Swal.fire({
+                            title: 'Deleted!',
+                            text: 'Category has been deleted successfully.',
+                            icon: 'success',
+                            timer: 2000,
+                            showConfirmButton: true,
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: result.message,
+                            icon: 'error'
+                        });
+                    }
+                },
+                error: function () {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'A server error occurred. Please try again later.',
+                        icon: 'error'
+                    });
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            $(document).on("click", "#submitCreate", function (event) {
+                event.preventDefault();
+                $.post("@Url.Action("Create", "Category")", $("#createCategoryForm").serialize(), function (response) {
+                    if (response.success) {
+                        $("#createCategoryModal").modal("hide");
+                        Swal.fire({
+                            title: "Category Created!",
+                            text: "The category has been successfully created.",
+                            icon: "success",
+                            allowOutsideClick: false,
+                            showConfirmButton: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        if (response.errors) {
+                            displayValidationErrors(response.errors);
+                        } else {
+                            $(".validation-summary-errors ul").html("<li>An error occurred. Please try again.</li>");
+                        }
+                    }
+                },
+                    "json")
+            });
+
+            $(document).on("click", "#submitUpdate", function (event) {
+                event.preventDefault();
+                $.post("@Url.Action("Update", "Category")", $("#updateCategoryForm").serialize(), function (response) {
+                    if (response.success) {
+                        $("#updateCategoryModal").modal("hide");
+                        Swal.fire({
+                            title: "Category Updated!",
+                            text: "The Category has been successfully Updated.",
+                            icon: "success",
+                            allowOutsideClick: false,
+                            showConfirmButton: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        if (response.errors) {
+                            displayValidationErrors(response.errors);
+                        } else {
+                            $(".validation-summary-errors ul").html("<li>An error occurred. Please try again.</li>");
+                        }
+                    }
+                },
+                    "json")
+            });
+
+            function displayValidationErrors(errors) {
+                $(".validation-summary-errors ul").empty();
+                $(".field-validation-error").empty();
+                $.each(errors, function (key, value) {
+                    $(`span[data-valmsg-for="${key}"]`).text(value[0]);
+                    $(".validation-summary-errors ul").append(`<li>${value[0]}</li>`);
+                });
+            }
+        });
+    </script>
+}
