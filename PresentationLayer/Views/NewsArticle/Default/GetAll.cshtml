@@ -4,26 +4,82 @@
 
 <div class="row gx-4 gx-lg-5 justify-content-center">
     <div class="col-md-10 col-lg-8 col-xl-7">
-        @foreach (var item in Model)
-        {
-            <div class="post-preview">
-                <a asp-action="Get" asp-controller="NewsArticle" asp-route-id="@item.NewsArticleID">
-                    <h2 class="post-title">@item.NewsTitle</h2>
-                    <h3 class="post-subtitle">@item.Headline</h3>
-                </a>
-                <p class="post-meta">
-                    Posted by
-                    <a href="#!">@item.CreatedByID</a>
-                    on @item.CreatedDate
-                </p>
+        <!-- Search Form -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Search Articles</h5>
+                <form method="get" action="@Url.Action("GetAll", "NewsArticle")" class="mb-3">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" name="searchTerm" placeholder="Search by title, headline or content..." value="@ViewBag.SearchTerm">
+                        </div>
+                        <div class="col-md-6">
+                            <select class="form-control" name="categoryId">
+                                <option value="">All Categories</option>
+                                @if (ViewBag.Categories != null)
+                                {
+                                    @foreach (var category in ViewBag.Categories)
+                                    {
+                                        <option value="@category.Value" selected="@(ViewBag.CategoryId != null && ViewBag.CategoryId.ToString() == category.Value)">
+                                            @category.Text
+                                        </option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mt-3 justify-content-center">
+                        <div class="col-md-6 ">
+                            <button type="submit" class="btn btn-primary w-100">Search</button>
+                        </div>
+                    </div>
+                    
+                </form>
+                @if ((ViewBag.SearchTerm != null && !string.IsNullOrEmpty(ViewBag.SearchTerm.ToString())) ||
+                (ViewBag.CategoryId != null && ViewBag.CategoryId != 0))
+                {
+                    <div class="d-flex justify-content-end">
+                        <a href="@Url.Action("GetAll", "NewsArticle")" class="btn btn-sm btn-outline-secondary">
+                            Clear filters
+                        </a>
+                    </div>
+                }
             </div>
-            <hr class="my-4">
+        </div>
+
+        @if (Model.Count == 0)
+        {
+            <div class="alert alert-info">
+                No articles found matching your search criteria.
+            </div>
+        }
+        else
+        {
+            @foreach (var item in Model)
+            {
+                <div class="post-preview">
+                    <a asp-action="Get" asp-controller="NewsArticle" asp-route-id="@item.NewsArticleID">
+                        <h2 class="post-title">@item.NewsTitle</h2>
+                        <h3 class="post-subtitle">@item.Headline</h3>
+                    </a>
+                    <p class="post-meta">
+                        Posted by
+                        <a href="#!">@item.CreatedByName</a>
+                        on @item.CreatedDate.ToString("MMMM dd, yyyy")
+                        @if (!string.IsNullOrEmpty(item.CategoryName))
+                        {
+                            <span> in <a href="@Url.Action("GetAll", "NewsArticle", new { categoryId = item.CategoryID })">@item.CategoryName</a></span>
+                        }
+                    </p>
+                </div>
+                <hr class="my-4">
+            }
         }
 
         <!-- Pagination Controls -->
         <nav>
             <ul class="pagination justify-content-center">
-                @Html.PagedListPager(Model, page => Url.Action("GetAll", new { page, pageSize = 5 }),
+                @Html.PagedListPager(Model, page => Url.Action("GetAll", new { page, pageSize = 5, searchTerm = ViewBag.SearchTerm, categoryId = ViewBag.CategoryId }),
                          new PagedListRenderOptions
                 {
                     LinkToPreviousPageFormat = "← Newer Posts",

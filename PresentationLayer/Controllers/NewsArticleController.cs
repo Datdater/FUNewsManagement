@@ -35,15 +35,44 @@ namespace PresentationLayer.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> GetAll(int page = 1, int pageSize = 5)
+        public async Task<IActionResult> GetAll(int page = 1, int pageSize = 5, string searchTerm = null, int? categoryId = null)
         {
-			var newsArticleListRaw = await _newArticleService.GetAllAsync();
-			var newsArticleList = _mapper.Map<List<NewsArticleViewModel>>(newsArticleListRaw);
+            var newsArticleListRaw = await _newArticleService.GetAllAsync();
+            var newsArticleList = _mapper.Map<List<NewsArticleViewModel>>(newsArticleListRaw);
+            newsArticleList = newsArticleList
+                .Where(x => x.NewsStatus == true)
+                .OrderByDescending(x => x.CreatedDate)
+                .ToList();
+            // Apply filters if provided
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                searchTerm = searchTerm.ToLower();
+                newsArticleList = newsArticleList.Where(n =>
+                    n.NewsTitle?.ToLower().Contains(searchTerm) == true ||
+                    n.Headline?.ToLower().Contains(searchTerm) == true ||
+                    n.NewsContent?.ToLower().Contains(searchTerm) == true
+                ).ToList();
+            }
 
-			var pagedList = newsArticleList.ToPagedList(page, pageSize);
+            if (categoryId.HasValue && categoryId.Value > 0)
+            {
+                newsArticleList = newsArticleList.Where(n => n.CategoryID == categoryId.Value).ToList();
+            }
 
-			return View("Default/GetAll", pagedList);
-		}
+            // Load categories for the filter dropdown
+            var categoryListRaw = await _categoryService.GetAllAsync();
+            var categoryList = _mapper.Map<List<CategoryViewModel>>(categoryListRaw)
+                                      .Where(x => x.IsActive)
+                                      .ToList();
+            ViewBag.Categories = new SelectList(categoryList, "CategoryID", "CategoryName", categoryId);
+
+            // Store the search parameters in ViewBag for preserving the search when paging
+            ViewBag.SearchTerm = searchTerm;
+            ViewBag.CategoryId = categoryId;
+
+            var pagedList = newsArticleList.ToPagedList(page, pageSize);
+            return View("Default/GetAll", pagedList);
+        }
 
         [AllowAnonymous]
         public async Task<IActionResult> Get(int id)

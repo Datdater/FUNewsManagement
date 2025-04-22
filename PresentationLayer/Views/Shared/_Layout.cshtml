@@ -1,111 +1,268 @@
 ﻿@using System.Security.Claims
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="" />
-        <meta name="author" content="" />
-        <title>Clean Blog - Start Bootstrap Theme</title>
-        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
-        <!-- Font Awesome icons (free version)-->
-        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-        <!-- Google fonts-->
-        <link href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css" />
-        <!-- Core theme CSS (includes Bootstrap)-->
-        <link href="~/css/styles.css" rel="stylesheet" />
-    </head>
-    <body>
-    @{
-        var userRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-    }
-    <!-- Navigation-->
-    <nav style="background-color: #343a40; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; color: white;">
-        <a href="" style="color: white; text-decoration: none; font-size: 20px; font-weight: bold;">FPTU Assignment</a>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="FU News - Your source for the latest information" />
+    <meta name="author" content="FU News Team" />
+    <title>FU News - Stay Informed</title>
+    <link rel="icon" type="image/x-icon" href="~/assets/favicon.ico" />
+    <!-- Font Awesome icons (free version)-->
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <!-- Google fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="~/css/styles.css" rel="stylesheet" />
+    <style>
+        /* Custom styles */
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
 
-        <div id="navbarResponsive" style="display: flex; align-items: center;">
-            <!-- If User is not logged in -->
-            @if (userRole == null)
-            {
-                <div id="guestMenu" style="display: flex;">
-                    <ul class="navbar-nav ms-auto py-4 py-lg-0">
-                        <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" asp-controller="Account" asp-action="Login">Login</a></li>
-                    </ul>
-                </div>
-            } else
-            {
-                <div id="userMenu" style="display: block; display: flex; align-items: center;">
-                    <p id="userGreeting" style="margin: 0; padding-right: 10px;">Hello, @User.Identity.Name</p>
-                    <a href="/Account/Logout" style="color: white; text-decoration: none; padding: 10px 15px; background-color: #dc3545; border-radius: 5px;">
-                        <i class="fa fa-power-off"></i> Logout
-                    </a>
-                </div>
+        .navbar-brand {
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-link {
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+            .nav-link:hover {
+                color: #0085A1 !important;
             }
 
-            
+        .masthead {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/assets/img/home-bg.jpg');
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            transition: all 0.3s ease;
+        }
+
+        .site-heading {
+            padding: 120px 0 80px;
+            color: white;
+        }
+
+            .site-heading h1 {
+                font-size: 4rem;
+                font-weight: 800;
+                margin-top: 0;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            }
+
+            .site-heading .subheading {
+                font-size: 1.5rem;
+                font-weight: 300;
+                line-height: 1.1;
+                display: block;
+                margin: 10px 0 0;
+                font-family: 'Open Sans', sans-serif;
+                text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+            }
+
+        .btn-login {
+            background-color: transparent;
+            border: 2px solid white;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+            .btn-login:hover {
+                background-color: white;
+                color: #343a40;
+            }
+
+        .btn-logout {
+            background-color: rgba(220, 53, 69, 0.8);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+            .btn-logout:hover {
+                background-color: #dc3545;
+            }
+
+        footer {
+            padding: 50px 0 30px;
+            background-color: #f8f9fa;
+        }
+
+        .social-icon {
+            transition: transform 0.3s ease;
+        }
+
+            .social-icon:hover {
+                transform: scale(1.1);
+            }
+
+        @@media (max-width: 768px) {
+            .site-heading h1 {
+                font-size: 3rem;
+            }
+
+            .site-heading .subheading {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    @{
+        var userRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+        // Check if we're on the news article detail page (Get.cshtml)
+        var isNewsDetail = Context.Request.Path.Value?.EndsWith("/Get") == true
+        || Context.Request.Path.Value?.Contains("/NewsArticle/Get/") == true;
+    }
+    <!-- Navigation-->
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #343a40;">
+        <div class="container px-4 px-lg-5">
+            <a class="navbar-brand" href="@Url.Action("GetAll", "NewsArticle")">
+                <i class="fas fa-newspaper me-2"></i>FU News
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav ms-auto py-2">
+                    <li class="nav-item">
+                        <a class="nav-link px-lg-3" href="@Url.Action("GetAll", "NewsArticle")">Home</a>
+                    </li>
+                    @if (userRole != null && userRole == "Staff")
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link px-lg-3" href="@Url.Action("GetAllDashboard", "NewsArticle")">Dashboard</a>
+                        </li>
+                    }
+                    @if (userRole == null)
+                    {
+                        <li class="nav-item">
+                            <a class="btn btn-login px-lg-3 py-2 mx-2" asp-controller="Account" asp-action="Login">
+                                <i class="fas fa-sign-in-alt me-1"></i> Login
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle px-lg-3" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle me-1"></i> @User.Identity.Name
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                @if (userRole == "Admin")
+                                {
+                                    <li><a class="dropdown-item" href="@Url.Action("GetAll", "Account")">Manage Accounts</a></li>
+                                }
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="/Account/Logout"><i class="fas fa-sign-out-alt me-1"></i> Logout</a></li>
+                            </ul>
+                        </li>
+                    }
+                </ul>
+            </div>
         </div>
     </nav>
+
+    @* Only show the main header on non-detail pages *@
+    @if (!isNewsDetail)
+    {
         <!-- Page Header-->
-        <header class="masthead" style="background-image: url('assets/img/home-bg.jpg')">
+        <header class="masthead">
             <div class="container position-relative px-4 px-lg-5">
                 <div class="row gx-4 gx-lg-5 justify-content-center">
                     <div class="col-md-10 col-lg-8 col-xl-7">
                         <div class="site-heading">
                             <h1>FU News</h1>
-                            <span class="subheading">A News Theme</span>
+                            <span class="subheading">Your Source for Current News & Information</span>
                         </div>
                     </div>
                 </div>
             </div>
         </header>
-        <!-- Main Content-->
+    }
+
+    <!-- Main Content-->
+    <div class="container px-4 px-lg-5 @(isNewsDetail ? "" : "mt-5")">
+        @RenderBody()
+    </div>
+
+    <!-- Footer-->
+    <footer class="border-top mt-5">
         <div class="container px-4 px-lg-5">
-            @RenderBody()
-        </div>
-        <!-- Footer-->
-        <footer class="border-top">
-            <div class="container px-4 px-lg-5">
-                <div class="row gx-4 gx-lg-5 justify-content-center">
-                    <div class="col-md-10 col-lg-8 col-xl-7">
-                        <ul class="list-inline text-center">
-                            <li class="list-inline-item">
-                                <a href="#!">
-                                    <span class="fa-stack fa-lg">
-                                        <i class="fas fa-circle fa-stack-2x"></i>
-                                        <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
-                                    </span>
-                                </a>
-                            </li>
-                            <li class="list-inline-item">
-                                <a href="#!">
-                                    <span class="fa-stack fa-lg">
-                                        <i class="fas fa-circle fa-stack-2x"></i>
-                                        <i class="fab fa-facebook-f fa-stack-1x fa-inverse"></i>
-                                    </span>
-                                </a>
-                            </li>
-                            <li class="list-inline-item">
-                                <a href="#!">
-                                    <span class="fa-stack fa-lg">
-                                        <i class="fas fa-circle fa-stack-2x"></i>
-                                        <i class="fab fa-github fa-stack-1x fa-inverse"></i>
-                                    </span>
-                                </a>
-                            </li>
-                        </ul>
-                        <div class="small text-center text-muted fst-italic">Copyright &copy; Your Website 2023</div>
+            <div class="row gx-4 gx-lg-5 justify-content-center">
+                <div class="col-md-10 col-lg-8 col-xl-7">
+                    <ul class="list-inline text-center mb-4">
+                        <li class="list-inline-item">
+                            <a href="#!" class="social-icon">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fas fa-circle fa-stack-2x"></i>
+                                    <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                        <li class="list-inline-item">
+                            <a href="#!" class="social-icon">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fas fa-circle fa-stack-2x"></i>
+                                    <i class="fab fa-facebook-f fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                        <li class="list-inline-item">
+                            <a href="#!" class="social-icon">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fas fa-circle fa-stack-2x"></i>
+                                    <i class="fab fa-instagram fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="text-center text-muted">
+                        <div class="small mb-2">FU News © @DateTime.Now.Year. All Rights Reserved.</div>
+                        <div class="small">Designed with <i class="fas fa-heart text-danger"></i> by FU News Team</div>
                     </div>
                 </div>
             </div>
-        </footer>
-        <!-- Bootstrap core JS-->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- Core theme JS-->
-        <script src="~/js/scripts.js"></script>
-        <script src="~/lib/jquery/dist/jquery.min.js"></script>
-        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="~/js/site.js" asp-append-version="true"></script>
-        @await RenderSectionAsync("Scripts", required: false)
-    </body>
+        </div>
+    </footer>
+
+    <!-- Bootstrap core JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Core theme JS-->
+    <script src="~/js/scripts.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+        // Add active class to current nav item
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentLocation = location.pathname;
+            const menuItems = document.querySelectorAll('.navbar-nav .nav-link');
+
+            menuItems.forEach(item => {
+                const href = item.getAttribute('href');
+                if (href && currentLocation.includes(href) && href !== '/') {
+                    item.classList.add('active');
+                    item.setAttribute('aria-current', 'page');
+                }
+            });
+
+            // Add scroll effect to navbar
+            window.addEventListener('scroll', function() {
+                const navbar = document.querySelector('.navbar');
+                if (window.scrollY > 50) {
+                    navbar.style.padding = '10px 0';
+                } else {
+                    navbar.style.padding = '15px 0';
+                }
+            });
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
 </html>

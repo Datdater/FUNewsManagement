@@ -26,7 +26,7 @@
 
                     <div class="form-group">
                         <label asp-for="NewsContent"></label>
-                        <textarea asp-for="NewsContent" class="form-control" rows="5" required></textarea>
+                        <textarea asp-for="NewsContent" id="news-content-editor" class="form-control" rows="5" ></textarea>
                         <span asp-validation-for="NewsContent" class="text-danger"></span>
                     </div>
 
@@ -68,6 +68,6 @@
     </div>
 </div>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+<script>
+    
+</script>
